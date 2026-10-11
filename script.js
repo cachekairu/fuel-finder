@@ -125,6 +125,9 @@ function createStationCard(place, index) {
     const stationList = document.getElementById("stationList");
     const distance = calculateDistance(userLocation.lat, userLocation.lng, place.location.lat(), place.location.lng());
 
+    const lat = place.location.lat();
+    const lng = place.location.lng();
+
     const marker = new google.maps.Marker({
         map: map,
         position: place.location,
@@ -141,6 +144,8 @@ function createStationCard(place, index) {
         focusStation(place.location);
     });
 
+    const googleMapsNavUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+
     const card = document.createElement("div");
     card.className = "station-card";
     card.innerHTML = `
@@ -152,18 +157,13 @@ function createStationCard(place, index) {
         </div>
         <div class="card-actions">
             <button class="map-button" type="button">View on Map</button>
-            <button class="directions-button" type="button" style="margin-left:8px; padding:6px 12px; background:#4285F4; color:white; border:none; border-radius:4px; cursor:pointer;">Get Directions 🧭</button>
+            <a href="${googleMapsNavUrl}" target="_blank" class="directions-button" style="display:inline-block; margin-left:8px; padding:6px 12px; background:#4285F4; color:white; border-radius:4px; text-decoration:none;">Get Directions 🧭</a>
         </div>
     `;
 
     const mapButton = card.querySelector(".map-button");
     mapButton.addEventListener("click", () => {
         focusStation(place.location);
-    });
-
-    const directionsButton = card.querySelector(".directions-button");
-    directionsButton.addEventListener("click", () => {
-        getDirections(place.location);
     });
 
     stationList.appendChild(card);
