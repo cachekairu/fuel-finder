@@ -2,6 +2,8 @@ let map;
 let userLocation = null;
 let markers = [];
 let userMarker = null;
+let directionsService;
+let directionsRenderer;
 
 function initMap() {
     const defaultLocation = { lat: 14.5869, lng: 121.1758 };
@@ -12,6 +14,10 @@ function initMap() {
         streetViewControl: false,
         fullscreenControl: false
     });
+
+    directionsService = new google.maps.DirectionsService();
+    directionsRenderer = new google.maps.DirectionsRenderer();
+    directionsRenderer.setMap(map);
 
     const findButton = document.getElementById("findBtn");
     if (findButton) {
@@ -119,9 +125,6 @@ function createStationCard(place, index) {
     const stationList = document.getElementById("stationList");
     const distance = calculateDistance(userLocation.lat, userLocation.lng, place.location.lat(), place.location.lng());
 
-    const lat = place.location.lat();
-    const lng = place.location.lng();
-
     const marker = new google.maps.Marker({
         map: map,
         position: place.location,
@@ -138,8 +141,6 @@ function createStationCard(place, index) {
         focusStation(place.location);
     });
 
-    const googleMapsNavUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
-
     const card = document.createElement("div");
     card.className = "station-card";
     card.innerHTML = `
@@ -151,7 +152,7 @@ function createStationCard(place, index) {
         </div>
         <div class="card-actions">
             <button class="map-button" type="button">View on Map</button>
-            <a href="${googleMapsNavUrl}" target="_blank" class="directions-button" style="display:inline-block; margin-left:8px; padding:6px 12px; background:#4285F4; color:white; border-radius:4px; text-decoration:none;">Get Directions 🧭</a>
+            <button class="directions-button" type="button" style="margin-left:8px; padding:6px 12px; background:#4285F4; color:white; border:none; border-radius:4px; cursor:pointer;">Get Directions 🧭</button>
         </div>
     `;
 
@@ -160,12 +161,38 @@ function createStationCard(place, index) {
         focusStation(place.location);
     });
 
+    const directionsButton = card.querySelector(".directions-button");
+    directionsButton.addEventListener("click", () => {
+        getDirections(place.location);
+    });
+
     stationList.appendChild(card);
 
-    // May 500ms delay kada card para iwas rate limit kay Gemini
     setTimeout(() => {
         loadFuelPrice(card, place.displayName, place.formattedAddress);
     }, index * 500);
+}
+
+function getDirections(destinationLocation) {
+    if (!userLocation) {
+        alert("Please find your location first!");
+        return;
+    }
+
+    const request = {
+        origin: userLocation,
+        destination: destinationLocation,
+        travelMode: google.maps.TravelMode.DRIVING
+    };
+
+    directionsService.route(request, (result, status) => {
+        if (status === "OK") {
+            directionsRenderer.setDirections(result);
+            document.getElementById("map").scrollIntoView({ behavior: "smooth", block: "start" });
+        } else {
+            alert("Could not display directions: " + status);
+        }
+    });
 }
 
 function focusStation(location) {
