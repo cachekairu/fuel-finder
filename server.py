@@ -38,8 +38,7 @@ def estimate_price():
         return jsonify({"error": "Station name is required."}), 400
 
     try:
-        # Pinalitan ng tamang active model para sa Gemini API
-        model = genai.GenerativeModel("gemini-3.8-flash")
+        model = genai.GenerativeModel("gemini-1.5-flash")
         prompt = (
             f"Provide realistic estimated current retail fuel prices in Philippine Pesos (PHP) per liter "
             f"for '{station_name}' located at '{location}'. "
@@ -55,11 +54,11 @@ def estimate_price():
             "result": estimated_text
         })
     except Exception as error:
-        print("Gemini price estimation error:", error)
+        print("Gemini price estimation error:", str(error))
         return jsonify({
             "success": False,
-            "error": "Unable to generate price estimation."
-        }), 500
+            "error": str(error)
+        }, 500)
 
 if __name__ == "__main__":
     app.run(
