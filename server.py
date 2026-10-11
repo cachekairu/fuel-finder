@@ -39,7 +39,7 @@ def estimate_price():
 
     try:
         # Pinalitan ng tamang active model para sa Gemini API
-        model = genai.GenerativeModel("gemini-1.5-flash")
+        model = genai.GenerativeModel("gemini-3.8-flash")
         prompt = (
             f"Provide realistic estimated current retail fuel prices in Philippine Pesos (PHP) per liter "
             f"for '{station_name}' located at '{location}'. "
