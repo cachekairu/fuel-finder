@@ -7,9 +7,24 @@ let directionsRenderer;
 
 function initMap() {
     const defaultLocation = { lat: 14.5869, lng: 121.1758 };
+    
+    // Clean and minimalist light map style
+    const lightMapStyle = [
+        {
+            featureType: "poi",
+            elementType: "labels",
+            stylers: [{ visibility: "off" }] // Hide POI clutter for a cleaner view
+        },
+        {
+            featureType: "transit",
+            stylers: [{ visibility: "off" }]
+        }
+    ];
+
     map = new google.maps.Map(document.getElementById("map"), {
         center: defaultLocation,
         zoom: 14,
+        styles: lightMapStyle,
         mapTypeControl: false,
         streetViewControl: false,
         fullscreenControl: false
@@ -51,13 +66,20 @@ function findGasStations() {
                 userMarker.setMap(null);
             }
 
+            // High-visibility Custom User Marker (Blue circle with white border)
             userMarker = new google.maps.Marker({
                 position: userLocation,
                 map: map,
                 title: "You are here",
                 icon: {
-                    url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png"
-                }
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: 12,
+                    fillColor: "#2563eb",
+                    fillOpacity: 1,
+                    strokeColor: "#ffffff",
+                    strokeWeight: 4
+                },
+                zIndex: 999
             });
 
             searchGasStations();
@@ -128,13 +150,19 @@ function createStationCard(place, index) {
     const lat = place.location.lat();
     const lng = place.location.lng();
 
+    // High-visibility Custom Gas Station Marker (Amber pin)
     const marker = new google.maps.Marker({
         map: map,
         position: place.location,
         title: place.displayName,
         icon: {
-            url: "https://maps.google.com/mapfiles/kml/shapes/gas_stations.png",
-            scaledSize: new google.maps.Size(32, 32)
+            path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
+            fillColor: "#f59e0b",
+            fillOpacity: 1,
+            strokeColor: "#ffffff",
+            strokeWeight: 2,
+            scale: 1.5,
+            anchor: new google.maps.Point(12, 22)
         }
     });
 
@@ -157,7 +185,7 @@ function createStationCard(place, index) {
         </div>
         <div class="card-actions">
             <button class="map-button" type="button">View on Map</button>
-            <a href="${googleMapsNavUrl}" target="_blank" class="directions-button" style="display:inline-block; margin-left:8px; padding:6px 12px; background:#4285F4; color:white; border-radius:4px; text-decoration:none;">Get Directions 🧭</a>
+            <a href="${googleMapsNavUrl}" target="_blank" class="direction-button">Get Directions 🧭</a>
         </div>
     `;
 
@@ -171,28 +199,6 @@ function createStationCard(place, index) {
     setTimeout(() => {
         loadFuelPrice(card, place.displayName, place.formattedAddress);
     }, index * 500);
-}
-
-function getDirections(destinationLocation) {
-    if (!userLocation) {
-        alert("Please find your location first!");
-        return;
-    }
-
-    const request = {
-        origin: userLocation,
-        destination: destinationLocation,
-        travelMode: google.maps.TravelMode.DRIVING
-    };
-
-    directionsService.route(request, (result, status) => {
-        if (status === "OK") {
-            directionsRenderer.setDirections(result);
-            document.getElementById("map").scrollIntoView({ behavior: "smooth", block: "start" });
-        } else {
-            alert("Could not display directions: " + status);
-        }
-    });
 }
 
 function focusStation(location) {
