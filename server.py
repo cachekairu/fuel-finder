@@ -6,8 +6,6 @@ from google import genai
 app = Flask(__name__)
 CORS(app)
 
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
-
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 @app.route("/")
@@ -37,7 +35,12 @@ def estimate_price():
     if not station_name:
         return jsonify({"error": "Station name is required."}), 400
 
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        return jsonify({"success": False, "error": "GEMINI_API_KEY is missing"}), 500
+
     try:
+        client = genai.Client(api_key=api_key)
         prompt = (
             f"Provide realistic estimated current retail fuel prices in Philippine Pesos (PHP) per liter "
             f"for '{station_name}' located at '{location}'. "
