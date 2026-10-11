@@ -42,8 +42,8 @@ def estimate_price():
         prompt = (
             f"Provide realistic estimated current retail fuel prices in Philippine Pesos (PHP) per liter "
             f"for '{station_name}' located at '{location}'. "
-            f"Give estimates for Reg 91, Pre 95, and Diesel based on current typical market prices in the Philippines. "
-            f"Return the response strictly as a short, clean text string like: 'Reg 91: ₱58.50 | Pre 95: ₱61.00 | Diesel: ₱53.50'."
+            f"Give estimates for Reg , Pre , and Diesel based on current typical market prices in the Philippines. "
+            f"Return the response strictly as a short, clean text string like: 'Reg: ₱58.50 | Pre: ₱61.00 | Diesel: ₱53.50'."
         )
 
         response = model.generate_content(prompt)
@@ -58,7 +58,7 @@ def estimate_price():
         return jsonify({
             "success": False,
             "error": str(error)
-        }, 500)
+        }), 500
 
 if __name__ == "__main__":
     app.run(
