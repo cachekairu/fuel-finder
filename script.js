@@ -119,6 +119,9 @@ function createStationCard(place, index) {
     const stationList = document.getElementById("stationList");
     const distance = calculateDistance(userLocation.lat, userLocation.lng, place.location.lat(), place.location.lng());
 
+    const lat = place.location.lat();
+    const lng = place.location.lng();
+
     const marker = new google.maps.Marker({
         map: map,
         position: place.location,
@@ -135,6 +138,8 @@ function createStationCard(place, index) {
         focusStation(place.location);
     });
 
+    const googleMapsNavUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+
     const card = document.createElement("div");
     card.className = "station-card";
     card.innerHTML = `
@@ -146,6 +151,7 @@ function createStationCard(place, index) {
         </div>
         <div class="card-actions">
             <button class="map-button" type="button">View on Map</button>
+            <a href="${googleMapsNavUrl}" target="_blank" class="directions-button" style="display:inline-block; margin-left:8px; padding:6px 12px; background:#4285F4; color:white; border-radius:4px; text-decoration:none;">Get Directions 🧭</a>
         </div>
     `;
 
@@ -156,7 +162,10 @@ function createStationCard(place, index) {
 
     stationList.appendChild(card);
 
-    loadFuelPrice(card, place.displayName, place.formattedAddress);
+    // May 500ms delay kada card para iwas rate limit kay Gemini
+    setTimeout(() => {
+        loadFuelPrice(card, place.displayName, place.formattedAddress);
+    }, index * 500);
 }
 
 function focusStation(location) {
