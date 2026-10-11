@@ -187,7 +187,7 @@ async function loadFuelPrice(card, station, location) {
     const priceElement = card.querySelector(".fuel-price");
 
     try {
-        const response = await fetch("http://127.0.0.1:5000/estimate-price", {
+        const response = await fetch("/estimate-price", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ station, location })
