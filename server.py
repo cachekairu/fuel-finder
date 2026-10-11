@@ -1,12 +1,12 @@
 import os
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
-import google.generativeai as genai
+from google import genai
 
 app = Flask(__name__)
 CORS(app)
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -38,15 +38,17 @@ def estimate_price():
         return jsonify({"error": "Station name is required."}), 400
 
     try:
-        model = genai.GenerativeModel("gemini-1.5-flash")
         prompt = (
             f"Provide realistic estimated current retail fuel prices in Philippine Pesos (PHP) per liter "
             f"for '{station_name}' located at '{location}'. "
-            f"Give estimates for Reg , Pre , and Diesel based on current typical market prices in the Philippines. "
-            f"Return the response strictly as a short, clean text string like: 'Reg: ₱58.50 | Pre: ₱61.00 | Diesel: ₱53.50'."
+            f"Give estimates for Reg 91, Pre 95, and Diesel based on current typical market prices in the Philippines. "
+            f"Return the response strictly as a short, clean text string like: 'Reg 91: ₱58.50 | Pre 95: ₱61.00 | Diesel: ₱53.50'."
         )
 
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model="gemini-1.5-flash",
+            contents=prompt
+        )
         estimated_text = response.text.strip()
 
         return jsonify({
